@@ -138,3 +138,6 @@ tags
 wandb
 .data
 log
+*.out
+job.sh
+raytune.py
