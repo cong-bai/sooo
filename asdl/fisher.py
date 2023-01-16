@@ -11,7 +11,18 @@ import torch.distributed as dist
 from .core import no_centered_cov
 from .operations import OperationContext
 from .utils import skip_param_grad
-from .grad_maker import GradientMaker, LOSS_CROSS_ENTROPY, LOSS_MSE
+import os
+precision = os.environ.get('precision')
+if precision == "std":
+    from .grad_maker import GradientMaker, LOSS_CROSS_ENTROPY, LOSS_MSE
+elif precision == "bf":
+    from .grad_maker_bf import GradientMaker, LOSS_CROSS_ENTROPY, LOSS_MSE
+elif precision == "bf_as":
+    from .grad_maker_bf_as import GradientMaker, LOSS_CROSS_ENTROPY, LOSS_MSE
+elif precision == "fp":
+    from .grad_maker_fp import GradientMaker, LOSS_CROSS_ENTROPY, LOSS_MSE
+elif precision == "fp_as":
+    from .grad_maker_fp_as import GradientMaker, LOSS_CROSS_ENTROPY, LOSS_MSE
 from .matrices import *
 from .vector import ParamVector, reduce_vectors
 from .mvp import power_method, stochastic_lanczos_quadrature, conjugate_gradient_method, quadratic_form

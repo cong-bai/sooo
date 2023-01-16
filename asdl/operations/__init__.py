@@ -1,7 +1,21 @@
 import warnings
 from .operation import *
-from .linear import Linear
-from .conv import Conv2d
+import os
+optype = os.environ.get('accutype')
+if optype == "std":
+    from .linear import Linear
+    from .conv import Conv2d
+elif optype == "single":
+    from .linear_2f import Linear
+    from .conv_2f import Conv2d
+elif optype == "bf":
+    from .linear_2bf import Linear
+    from .conv_2bf import Conv2d
+elif optype == "fp_scaling":
+    from .linear_fp16_scaling import Linear
+    from .conv_fp16_scaling import Conv2d
+else:
+    raise Exception(optype)
 from .batchnorm import BatchNorm1d, BatchNorm2d
 from .layernorm import LayerNorm
 from .embedding import Embedding

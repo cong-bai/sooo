@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import os
 import random
 import time
 import warnings
@@ -14,9 +15,6 @@ from timm.data.transforms_factory import create_transform
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
-
-import asdl
-from asdl import FISHER_MC, FISHER_EMP
 
 
 def train_one_epoch(
@@ -81,6 +79,11 @@ def main(args):
     torch.manual_seed(0)
     random.seed(0)
     np.random.seed(0)
+
+    os.environ["precision"] = args.precision
+    os.environ["accutype"] = args.accutype
+    import asdl
+    from asdl import FISHER_MC, FISHER_EMP
 
     gpu = torch.tensor(0).cuda().device
     torch.cuda.reset_peak_memory_stats(gpu)
@@ -285,6 +288,9 @@ def get_args_parser():
     parser.add_argument("--val-crop-pct", default=1, type=int)
     parser.add_argument("--train-input-size", default=224, type=int)
     parser.add_argument("--auto-augment", default="rand-m9-mstd0.5-inc1", type=str)
+
+    parser.add_argument("--precision", type=str, choices=["std", "bf", "bf_as", "fp", "fp_as"])
+    parser.add_argument("--accutype", type=str, choices=["std", "single", "bf", "fp_s"])
     return parser
 
 

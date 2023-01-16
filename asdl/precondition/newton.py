@@ -4,7 +4,18 @@ from dataclasses import dataclass
 import torch
 from torch import Tensor
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
-from ..grad_maker import GradientMaker
+import os
+precision = os.environ.get('precision')
+if precision == "std":
+    from ..grad_maker import GradientMaker
+elif precision == "bf":
+    from ..grad_maker_bf import GradientMaker
+elif precision == "bf_as":
+    from ..grad_maker_bf_as import GradientMaker
+elif precision == "fp":
+    from ..grad_maker_fp import GradientMaker
+elif precision == "fp_as":
+    from ..grad_maker_fp_as import GradientMaker
 from ..hessian import HessianMaker, HessianConfig
 from ..matrices import SHAPE_FULL
 

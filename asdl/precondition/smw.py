@@ -7,7 +7,18 @@ import torch.nn as nn
 
 from ..core import extend
 from ..operations import OP_GRAM_HADAMARD
-from ..grad_maker import GradientMaker
+import os
+precision = os.environ.get('precision')
+if precision == "std":
+    from ..grad_maker import GradientMaker
+elif precision == "bf":
+    from ..grad_maker_bf import GradientMaker
+elif precision == "bf_as":
+    from ..grad_maker_bf_as import GradientMaker
+elif precision == "fp":
+    from ..grad_maker_fp import GradientMaker
+elif precision == "fp_as":
+    from ..grad_maker_fp_as import GradientMaker
 
 __all__ = ['SmwEmpNaturalGradientConfig', 'SmwEmpNaturalGradientMaker']
 
@@ -32,9 +43,12 @@ class SmwEmpNaturalGradientConfig:
     data_size: int
     damping: float = 1.e-5
 
+_supported_modules = (nn.Linear, nn.Conv2d)
+
 
 class SmwEmpNaturalGradientMaker(GradientMaker):
     _loss_reduction = 'none'
+    _supported_classes = (nn.Linear, nn.Conv2d)
 
     def __init__(self, model, config):
         super().__init__(model)

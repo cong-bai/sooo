@@ -9,7 +9,18 @@ from .symmatrix import SymMatrix, Diag
 from .matrices import SHAPE_FULL, SHAPE_LAYER_WISE, SHAPE_DIAG
 from .mvp import power_method, conjugate_gradient_method, quadratic_form
 from .vector import ParamVector
-from .grad_maker import GradientMaker
+import os
+precision = os.environ.get('precision')
+if precision == "std":
+    from .grad_maker import GradientMaker
+elif precision == "bf":
+    from .grad_maker_bf import GradientMaker
+elif precision == "bf_as":
+    from .grad_maker_bf_as import GradientMaker
+elif precision == "fp":
+    from .grad_maker_fp import GradientMaker
+elif precision == "fp_as":
+    from .grad_maker_fp_as import GradientMaker
 
 __all__ = ['HessianConfig', 'HessianMaker']
 _supported_shapes = [SHAPE_FULL, SHAPE_LAYER_WISE, SHAPE_DIAG]
