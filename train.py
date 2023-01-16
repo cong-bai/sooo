@@ -234,8 +234,9 @@ def main(args):
         wandb.run.summary["best_acc"] = max(acc_list)
         wandb.finish()
     total_time_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
+    mem = torch.cuda.max_memory_allocated(gpu)/1024/1024/1024
     print(
-        f"Training time: {total_time_str}, Peak GPU memory: {torch.cuda.max_memory_allocated(gpu)}"
+        f"Training time: {total_time_str}, Peak GPU memory: {mem}"
     )
 
 
@@ -290,7 +291,7 @@ def get_args_parser():
     parser.add_argument("--auto-augment", default="rand-m9-mstd0.5-inc1", type=str)
 
     parser.add_argument("--precision", type=str, choices=["std", "bf", "bf_as", "fp", "fp_as"])
-    parser.add_argument("--accutype", type=str, choices=["std", "single", "bf", "fp_s"])
+    parser.add_argument("--accutype", type=str, choices=["std", "single", "bf", "fp_s", "double"])
     return parser
 
 

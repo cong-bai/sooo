@@ -8,6 +8,9 @@ if optype == "std":
 elif optype == "single":
     from .linear_2f import Linear
     from .conv_2f import Conv2d
+elif optype == "double":
+    from .linear_2d import Linear
+    from .conv_2d import Conv2d
 elif optype == "bf":
     from .linear_2bf import Linear
     from .conv_2bf import Conv2d
