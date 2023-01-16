@@ -11,7 +11,7 @@ elif optype == "single":
 elif optype == "bf":
     from .linear_2bf import Linear
     from .conv_2bf import Conv2d
-elif optype == "fp_scaling":
+elif optype == "fp_s":
     from .linear_fp16_scaling import Linear
     from .conv_fp16_scaling import Conv2d
 else:
