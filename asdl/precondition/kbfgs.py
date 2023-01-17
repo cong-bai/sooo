@@ -7,7 +7,14 @@ from torch import Tensor
 from ..core import extend
 from ..operations import OP_MEAN_INPUTS, OP_SPATIAL_MEAN_OUTPUTS, OP_SPATIAL_MEAN_OUTGRADS,\
     OP_OUT_SPATIAL_SIZE, OP_COV_KRON, OP_BFGS_KRON_S_AS, OperationContext
-from ..utils import cholesky_inv
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from ..utils import cholesky_inv
+elif inverse == "lu":
+    from ..utils_lu import cholesky_inv
+else:
+    raise Exception(inverse)
 from ..symmatrix import SymMatrix
 from .prec_grad_maker import PreconditionedGradientMaker, PreconditioningConfig
 

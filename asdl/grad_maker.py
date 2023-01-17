@@ -7,7 +7,14 @@ from torch import Tensor
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .utils import has_reduction
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from .utils import has_reduction
+elif inverse == "lu":
+    from .utils_lu import has_reduction
+else:
+    raise Exception(inverse)
 
 try:
     import functorch as ft

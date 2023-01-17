@@ -1,7 +1,14 @@
 import torch
 from torch import nn
 
-from ..utils import im2col_2d
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from ..utils import im2col_2d
+elif inverse == "lu":
+    from ..utils_lu import im2col_2d
+else:
+    raise Exception(inverse)
 from .operation import Operation
 
 

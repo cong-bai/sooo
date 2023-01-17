@@ -11,7 +11,14 @@ import torch.distributed as dist
 from .core import extend, save_inputs_outgrads
 from .operations import *
 from .precondition import NaturalGradientMaker
-from .utils import skip_param_grad
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from .utils import skip_param_grad
+elif inverse == "lu":
+    from .utils_lu import skip_param_grad
+else:
+    raise Exception(inverse)
 
 
 __all__ = [

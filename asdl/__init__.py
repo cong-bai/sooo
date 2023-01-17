@@ -1,3 +1,11 @@
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from .utils import *
+elif inverse == "lu":
+    from .utils_lu import *
+else:
+    raise Exception(inverse)
 from .utils import *
 from .vector import *
 from .symmatrix import *
@@ -6,7 +14,6 @@ from .operations import *
 from .core import *
 from .gradient import *
 from .mvp import *
-import os
 precision = os.environ.get('precision')
 if precision == "std":
     from .grad_maker import *

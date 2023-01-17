@@ -10,8 +10,14 @@ import torch.distributed as dist
 
 from .core import no_centered_cov
 from .operations import OperationContext
-from .utils import skip_param_grad
 import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from .utils import skip_param_grad
+elif inverse == "lu":
+    from .utils_lu import skip_param_grad
+else:
+    raise Exception(inverse)
 precision = os.environ.get('precision')
 if precision == "std":
     from .grad_maker import GradientMaker, LOSS_CROSS_ENTROPY, LOSS_MSE

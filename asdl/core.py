@@ -5,7 +5,14 @@ import torch.cuda
 import torch.nn as nn
 from torch.cuda import Stream
 
-from .utils import record_original_requires_grad
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from .utils import record_original_requires_grad
+elif inverse == "lu":
+    from .utils_lu import record_original_requires_grad
+else:
+    raise Exception(inverse)
 from .operations import *
 from .matrices import *
 from .vector import ParamVector

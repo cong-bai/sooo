@@ -1,8 +1,6 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-import sys
-import numpy as np
 
 from .operation import Operation
 
@@ -75,7 +73,7 @@ class Linear(Operation):
     def cov_kron_A(module, in_data):
         with torch.autocast(device_type="cuda", enabled=False):
             rst = torch.matmul(in_data.float().T, in_data.float())
-        return   rst# f_in x f_in
+        return rst # f_in x f_in
 
     @classmethod
     def cov_swift_kron_A(cls, module, in_data):

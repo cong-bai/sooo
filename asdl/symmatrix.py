@@ -5,7 +5,14 @@ from operator import iadd
 import numpy as np
 import torch
 from torch import Tensor
-from .utils import cholesky_inv, smw_inv
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from .utils import cholesky_inv, smw_inv
+elif inverse == "lu":
+    from .utils_lu import cholesky_inv, smw_inv
+else:
+    raise Exception(inverse)
 from .vector import ParamVector
 
 __all__ = [
