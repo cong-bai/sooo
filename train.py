@@ -16,43 +16,7 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
 
-
-def train_one_epoch(
-    model, optimizer, grad_maker, loss_func, data_loader,
-    device="cuda", clip_grad_norm=0, use_wandb=False, print_freq=10
-):
-    model.train()
-    end_time = time.time()
-
-    for i, (image, target) in enumerate(data_loader):
-        start_time = time.time()
-        image, target = image.to(device), target.to(device)
-
-        core_time1 = time.time()
-        optimizer.zero_grad()
-        dummy_y = grad_maker.setup_model_call(model, image)
-        grad_maker.setup_loss_call(loss_func, dummy_y, target)
-        output, loss = grad_maker.forward_and_backward()
-        if clip_grad_norm:
-            norm = nn.utils.clip_grad_norm_(model.parameters(), clip_grad_norm)
-        optimizer.step()
-        core_time2 = time.time()
-
-        with torch.no_grad():
-            acc = torch.sum(torch.argmax(output, dim=1) == target) / len(target) * 100
-        if i % print_freq == 0:
-            print(
-                f"[{i}/{len(data_loader)}]\t loss: {loss:.4f}\t acc: {acc:.3f}%\t"
-                f"time: {time.time() - end_time:.3f}\t data_time: {start_time - end_time:.3f}"
-            )
-        if use_wandb:
-            log = {
-                "loss": loss, "lr": optimizer.param_groups[0]["lr"], "acc": acc, "norm": norm,
-                "total_time": time.time() - end_time, "data_time": start_time - end_time, "iter_time": core_time2 - core_time1
-            }
-            wandb.log(log)
-
-        end_time = time.time()
+from train_one_epoch import train_one_epoch_asdl, train_one_epoch_sgd_amp
 
 
 def evaluate(model, criterion, data_loader, device="cuda"):
@@ -82,6 +46,7 @@ def main(args):
 
     os.environ["precision"] = args.precision
     os.environ["accutype"] = args.accutype
+    os.environ["inverse"] = args.inverse
     import asdl
     from asdl import FISHER_MC, FISHER_EMP
 
@@ -129,7 +94,6 @@ def main(args):
         dataset_test, batch_size=args.batch_size, num_workers=args.workers, pin_memory=True
     )
 
-
     # Model
     print("Creating model")
     if args.model.startswith("timm_"):
@@ -156,11 +120,22 @@ def main(args):
         )
     elif opt_name == "adamw":
         optimizer = optim.AdamW(parameters, lr=args.lr, weight_decay=args.weight_decay)
-    elif opt_name in ("sgd", "kfac_mc", "kfac_emp", "shampoo", "smw_ngd"):
+    elif opt_name in ("sgd", "sgd_torch", "kfac_mc", "kfac_emp", "shampoo", "smw_ngd"):
         optimizer = optim.SGD(
             parameters, lr=args.lr, momentum=args.momentum,
             weight_decay=args.weight_decay, nesterov=args.nesterov
         )
+    if opt_name == "sgd_torch":
+        if args.precision in ["bf", "bf_as"]:
+            autocast_dtype = torch.bfloat16
+        elif args.precision in ["fp", "fp_as"]:
+            autocast_dtype = torch.float16
+        elif args.precision == "std":
+            autocast_dtype = None
+        if args.precision in ["bf_as", "fp_as"]:
+            scaler = torch.cuda.amp.GradScaler()
+        elif args.precision in ["bf", "fp", "std"]:
+            scaler = None
 
     ignore_modules = None
     if args.ignore_norm_layer:
@@ -215,10 +190,16 @@ def main(args):
     start_time = time.time()
     acc_list = []
     for epoch in range(args.epochs):
-        train_one_epoch(
-            model, optimizer, grad_maker, criterion, data_loader,
-            device, args.clip_grad_norm, args.wandb, args.print_freq,
-        )
+        if args.opt == "sgd_torch":
+            train_one_epoch_sgd_amp(
+                model, optimizer, autocast_dtype, scaler, criterion, data_loader,
+                device, args.clip_grad_norm, args.wandb, args.print_freq,
+            )
+        else:
+            train_one_epoch_asdl(
+                model, optimizer, grad_maker, criterion, data_loader,
+                device, args.clip_grad_norm, args.wandb, args.print_freq,
+            )
         lr_scheduler.step()
         loss, acc = evaluate(model, criterion, data_loader_test, device)
         acc_list.append(acc)
@@ -234,7 +215,7 @@ def main(args):
         wandb.run.summary["best_acc"] = max(acc_list)
         wandb.finish()
     total_time_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
-    mem = torch.cuda.max_memory_allocated(gpu)/1024/1024/1024
+    mem = torch.cuda.max_memory_allocated(gpu) / 1024 / 1024 / 1024
     print(
         f"Training time: {total_time_str}, Peak GPU memory: {mem}"
     )
@@ -265,7 +246,7 @@ def get_args_parser():
     parser.add_argument("--print-freq", default=50, type=int)
     parser.add_argument("--ignore-warning", action="store_true")
 
-    opt_choices = ["sgd", "kfac_emp", "shampoo", "smw_ngd"]
+    opt_choices = ["sgd", "sgd_torch", "kfac_emp", "shampoo", "smw_ngd"]
     parser.add_argument("--opt", default="sgd", type=str, choices=opt_choices)
     parser.add_argument("--lr", default=3e-3, type=float)
     parser.add_argument("--momentum", default=0.9, type=float)
@@ -292,6 +273,7 @@ def get_args_parser():
 
     parser.add_argument("--precision", type=str, choices=["std", "bf", "bf_as", "fp", "fp_as"])
     parser.add_argument("--accutype", type=str, choices=["std", "single", "bf", "fp_s", "double"])
+    parser.add_argument("--inverse", type=str, choices=["lu", "cholesky"])
     return parser
 
 
