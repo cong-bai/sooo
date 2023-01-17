@@ -4,6 +4,10 @@ from torch import nn
 from ..utils import im2col_2d
 from .operation import Operation
 
+import sys
+
+import numpy as np
+
 
 class Conv2d(Operation):
     """
@@ -78,11 +82,10 @@ class Conv2d(Operation):
         out_size = in_data.shape[-1]
         m = in_data.transpose(0, 1).flatten(
             start_dim=1
-        )  # (c_in)(kernel_size) x n(out_size)
-        return torch.matmul(
-            m.float(), m.float().T
-        ).div(out_size)  # (c_in)(kernel_size) x (c_in)(kernel_size)
-
+        ).float()  # (c_in)(kernel_size) x n(out_size)
+        with torch.autocast(device_type="cuda", enabled=False):
+            rst = torch.matmul(m, m.T).div(out_size)
+        return rst
     @classmethod
     def cov_swift_kron_A(cls, module, in_data):
         n, cin_ks, _ = in_data.shape
@@ -94,8 +97,10 @@ class Conv2d(Operation):
     @staticmethod
     def cov_kron_B(module, out_grads):
         m = out_grads.transpose(0,
-                                1).flatten(start_dim=1)  # c_out x n(out_size)
-        return torch.matmul(m.float(), m.float().T)  # c_out x c_out
+                                1).flatten(start_dim=1).float()  # c_out x n(out_size)
+        with torch.autocast(device_type="cuda", enabled=False):
+            rst = torch.matmul(m, m.T)
+        return rst  # c_out x c_out
 
     @classmethod
     def cov_swift_kron_B(cls, module, out_grads):
