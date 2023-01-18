@@ -104,22 +104,17 @@ class Conv2d(Operation):
         out_size = in_data.shape[-1]
         m = in_data.transpose(0, 1).flatten(
             start_dim=1
-        )  # (c_in)(kernel_size) x n(out_size)
-        #print('cov in_data shape A*AT', m.shape)
-        scale = torch.ones(1, dtype = torch.float16, device = 'cuda')
-        #print('scale')
-        for i in range(m.shape[0]):
-            tmp = torch.norm(m[i, :])
-            #print(tmp)
-            if scale < tmp:
-                scale = tmp
-            #print('no!!!!!!!!!!!!!!')
+        )
+        tmp = 0.1
+        if abs(m.max()) > abs(m.min()):
+            tmp = abs(m.max())
+        else:
+            tmp = abs(m.min())
+        scale = torch.tensor(m.shape[1], dtype = float).sqrt()*tmp.sqrt()
         m = m/scale
         rst = torch.matmul(m, m.T)
         rst = rst.float()
-        #print(out_size)
         rst = rst*(scale.float()**2).div(out_size)
-        #print(rst)
         return rst
 
     @classmethod
@@ -147,17 +142,8 @@ class Conv2d(Operation):
     def cov_kron_B(module, out_grads):
         m = out_grads.transpose(0,
                                 1).flatten(start_dim=1)  # c_out x n(out_size)
-        #print('cov out_grads shape A*AT', m.shape)
-        scale = torch.ones(1, dtype = torch.float16, device = 'cuda')
-        for i in range(m.shape[0]):
-            tmp = torch.norm(m[i, :])
-            if scale < tmp:
-                scale = tmp
-        m = m/scale
         rst = torch.matmul(m, m.T)
         rst = rst.float()
-        rst = rst*(scale.float()**2)
-        #print(rst)
         return rst  # c_out x c_out
 
     @classmethod
