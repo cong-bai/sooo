@@ -75,21 +75,17 @@ class Linear(Operation):
 
     @staticmethod
     def cov_kron_A(module, in_data):
-        #print('yes!!!!!!!!!1')
-        scale = torch.ones(1, dtype = torch.float16, device = 'cuda')
-        #print(scale)
-        for i in range(in_data.shape[1]):
-            tmp = torch.norm(in_data[:, i])
-            #(tmp)
-            if scale < tmp:
-                scale = tmp
-            #print('no!!!!!!!!!!!!')
-        #print('no!!!!!!!!!1')
+        tmp = 0.1
+        if abs(in_data.max()) > abs(in_data.min()):
+            tmp = abs(in_data.max())
+        else:
+            tmp = abs(in_data.min())
+        scale = torch.tensor(in_data.shape[0], dtype = float).sqrt()*tmp.sqrt()
         in_data = in_data/scale
         rst = torch.matmul(in_data.T, in_data)
+
         rst = rst.float()
         rst = rst*(scale.float()**2)
-        #print(rst)
         return rst  # f_in x f_in
 
     @classmethod
@@ -106,16 +102,8 @@ class Linear(Operation):
 
     @staticmethod
     def cov_kron_B(module, out_grads):
-        scale = torch.ones(1, dtype = torch.float16, device = 'cuda')
-        for i in range(out_grads.shape[1]):
-            tmp = torch.norm(out_grads[:, i])
-            if scale < tmp:
-                scale = tmp
-        out_grads = out_grads/scale
         rst = torch.matmul(out_grads.T, out_grads)
         rst = rst.float()
-        rst = rst*(scale.float()**2)
-        #print(rst)
         return rst  # f_out x f_out
 
     @classmethod
@@ -218,4 +206,3 @@ class Linear(Operation):
         indata_s = torch.mv(in_data, s)  # n
         As = torch.mv(in_data.T, indata_s)  # f_in
         return s, As
-
