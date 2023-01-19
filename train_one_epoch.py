@@ -64,6 +64,8 @@ def train_one_epoch_sgd_amp(
         if scaler:
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
+        else:
+            loss.backward()
         if clip_grad_norm:
             norm = nn.utils.clip_grad_norm_(model.parameters(), clip_grad_norm)
         if scaler:
