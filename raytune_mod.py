@@ -36,9 +36,9 @@ def train(config):
     args.model = model
     args.lr = lr
     args.ema_decay = ema_decay
-    args.precision = config["precision"]
-    args.accutype = config["accutype"]
-    args.inverse = config["inverse"]
+    config.pop("setting")
+    for k, v in config.items():
+        setattr(args, k, v)
     with HiddenPrints():
         main(args)
 
@@ -52,6 +52,7 @@ def parser():
     parser.add_argument("--shampoo", action="store_true")
     parser.add_argument("--kfac-emp", action="store_true")
     parser.add_argument("--kfac-emp-local", action="store_true")
+    parser.add_argument("--torch-matmul-precision", type=str, default="highest")
     parser.add_argument("--precision", type=str, choices=["std", "bf", "bf_as", "fp", "fp_as"])
     parser.add_argument("--accutype", type=str, choices=["std", "single", "double", "bf", "fp_s"])
     parser.add_argument("--inverse", type=str, choices=["lu", "cholesky"])
@@ -117,6 +118,7 @@ if __name__ == "__main__":
         "precision": tune.grid_search([args.precision]),
         "accutype": tune.grid_search([args.accutype]),
         "inverse": tune.grid_search([args.inverse]),
+        "torch_matmul_precision": tune.grid_search([args.torch_matmul_precision])
     }
 
     from train import get_args_parser, main
