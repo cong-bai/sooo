@@ -30,7 +30,8 @@ def train_one_epoch_asdl(
         if i % print_freq == 0:
             print(
                 f"[{i}/{len(data_loader)}]\t loss: {loss:.4f}\t acc: {acc:.3f}%\t"
-                f"time: {time.time() - end_time:.3f}\t data_time: {start_time - end_time:.3f}"
+                f"time: {time.time() - end_time:.3f}\t data_time: {start_time - end_time:.3f}\t"
+                f"max vmem: {torch.cuda.max_memory_allocated()}"
             )
         if use_wandb:
             log = {
