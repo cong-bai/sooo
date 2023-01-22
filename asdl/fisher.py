@@ -14,8 +14,13 @@ import os
 inverse = os.environ.get('inverse')
 if inverse == "cholesky":
     from .utils import skip_param_grad
+    from .symmatrix import SymMatrix
 elif inverse == "lu":
     from .utils_lu import skip_param_grad
+    from .symmatrix import SymMatrix
+elif inverse == "trsm":
+    from .utils_trsm import skip_param_grad
+    from .symmatrix_trsm import SymMatrix
 else:
     raise Exception(inverse)
 precision = os.environ.get('precision')
@@ -32,7 +37,6 @@ elif precision == "fp_as":
 from .matrices import *
 from .vector import ParamVector, reduce_vectors
 from .mvp import power_method, stochastic_lanczos_quadrature, conjugate_gradient_method, quadratic_form
-from .symmatrix import SymMatrix
 
 __all__ = [
     'FisherConfig',

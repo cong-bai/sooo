@@ -275,7 +275,7 @@ def get_args_parser():
     parser.add_argument("--torch-matmul-precision", type=str, default="highest")
     parser.add_argument("--precision", type=str, choices=["std", "bf", "bf_as", "fp", "fp_as"])
     parser.add_argument("--accutype", type=str, choices=["std", "single", "bf", "fp_s", "double"])
-    parser.add_argument("--inverse", type=str, choices=["lu", "cholesky"])
+    parser.add_argument("--inverse", type=str, choices=["lu", "cholesky", "trsm"])
     return parser
 
 

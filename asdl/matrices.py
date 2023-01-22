@@ -5,7 +5,16 @@ import torch
 import torch.nn as nn
 import torch.distributed as dist
 
-from .symmatrix import SymMatrix
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from .symmatrix import SymMatrix
+elif inverse == "lu":
+    from .symmatrix import SymMatrix
+elif inverse == "trsm":
+    from .symmatrix_trsm import SymMatrix
+else:
+    raise Exception(inverse)
 
 HESSIAN = 'hessian'  # Hessian
 FISHER_EXACT = 'fisher_exact'  # exact Fisher

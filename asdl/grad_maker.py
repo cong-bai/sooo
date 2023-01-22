@@ -13,6 +13,8 @@ if inverse == "cholesky":
     from .utils import has_reduction
 elif inverse == "lu":
     from .utils_lu import has_reduction
+elif inverse == "trsm":
+    from .utils_trsm import has_reduction
 else:
     raise Exception(inverse)
 

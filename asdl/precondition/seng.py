@@ -12,6 +12,8 @@ if inverse == "cholesky":
     from ..utils import cholesky_inv
 elif inverse == "lu":
     from ..utils_lu import cholesky_inv
+elif inverse == "trsm":
+    from ..utils_trsm import cholesky_inv
 else:
     raise Exception(inverse)
 from ..operations import OP_SKETCHED_GRAM

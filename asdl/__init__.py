@@ -2,13 +2,17 @@ import os
 inverse = os.environ.get('inverse')
 if inverse == "cholesky":
     from .utils import *
+    from .symmatrix import *
 elif inverse == "lu":
     from .utils_lu import *
+    from .symmatrix import *
+elif inverse == "trsm":
+    from .utils_trsm import *
+    from .symmatrix_trsm import *
 else:
     raise Exception(inverse)
 from .utils import *
 from .vector import *
-from .symmatrix import *
 from .matrices import *
 from .operations import *
 from .core import *

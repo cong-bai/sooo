@@ -17,6 +17,8 @@ if inverse == "cholesky":
     from .utils import skip_param_grad
 elif inverse == "lu":
     from .utils_lu import skip_param_grad
+elif inverse == "trsm":
+    from .utils_trsm import skip_param_grad
 else:
     raise Exception(inverse)
 

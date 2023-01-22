@@ -7,6 +7,8 @@ if inverse == "cholesky":
     from ..utils import im2col_2d
 elif inverse == "lu":
     from ..utils_lu import im2col_2d
+elif inverse == "trsm":
+    from ..utils_trsm import im2col_2d
 else:
     raise Exception(inverse)
 from .operation import Operation

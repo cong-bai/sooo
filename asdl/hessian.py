@@ -5,7 +5,16 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from .symmatrix import SymMatrix, Diag
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from .symmatrix import SymMatrix, Diag
+elif inverse == "lu":
+    from .symmatrix import SymMatrix, Diag
+elif inverse == "trsm":
+    from .symmatrix_trsm import SymMatrix, Diag
+else:
+    raise Exception(inverse)
 from .matrices import SHAPE_FULL, SHAPE_LAYER_WISE, SHAPE_DIAG
 from .mvp import power_method, conjugate_gradient_method, quadratic_form
 from .vector import ParamVector

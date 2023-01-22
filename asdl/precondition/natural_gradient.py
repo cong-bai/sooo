@@ -9,7 +9,16 @@ from torch.nn.utils import parameters_to_vector, vector_to_parameters
 
 from ..core import module_wise_assignments, modules_to_assign
 from ..matrices import *
-from ..symmatrix import SymMatrix
+import os
+inverse = os.environ.get('inverse')
+if inverse == "cholesky":
+    from ..symmatrix import SymMatrix
+elif inverse == "lu":
+    from ..symmatrix import SymMatrix
+elif inverse == "trsm":
+    from ..symmatrix_trsm import SymMatrix
+else:
+    raise Exception(inverse)
 from ..vector import ParamVector
 from ..fisher import LOSS_CROSS_ENTROPY, get_fisher_maker, FisherConfig
 from .prec_grad_maker import PreconditionedGradientMaker, PreconditioningConfig

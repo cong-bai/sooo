@@ -11,11 +11,15 @@ import os
 inverse = os.environ.get('inverse')
 if inverse == "cholesky":
     from ..utils import cholesky_inv
+    from ..symmatrix import SymMatrix
 elif inverse == "lu":
     from ..utils_lu import cholesky_inv
+    from ..symmatrix import SymMatrix
+elif inverse == "trsm":
+    from ..utils_trsm import cholesky_inv
+    from ..symmatrix_trsm import SymMatrix
 else:
     raise Exception(inverse)
-from ..symmatrix import SymMatrix
 from .prec_grad_maker import PreconditionedGradientMaker, PreconditioningConfig
 
 

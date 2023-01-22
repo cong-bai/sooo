@@ -7,12 +7,16 @@ import os
 inverse = os.environ.get('inverse')
 if inverse == "cholesky":
     from ..utils import original_requires_grad, cholesky_inv, smw_inv
+    from ..symmatrix import *
 elif inverse == "lu":
     from ..utils_lu import original_requires_grad, cholesky_inv, smw_inv
+    from ..symmatrix import *
+elif inverse == "trsm":
+    from ..utils_trsm import original_requires_grad, cholesky_inv, smw_inv
+    from ..symmatrix_trsm import *
 else:
     raise Exception(inverse)
 from ..matrices import *
-from ..symmatrix import *
 from ..vector import ParamVector
 
 # compute no-centered covariance
