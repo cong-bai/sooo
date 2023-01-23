@@ -10,6 +10,7 @@ import torch.nn.functional as F
 import torch.cuda.amp
 
 import os
+assert os.environ.get('precision') == "fp_as"
 inverse = os.environ.get('inverse')
 if inverse == "cholesky":
     from .utils import has_reduction

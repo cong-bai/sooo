@@ -2,6 +2,7 @@ import torch
 from torch import nn
 
 import os
+assert os.environ.get('accutype') == "std"
 inverse = os.environ.get('inverse')
 if inverse == "cholesky":
     from ..utils import im2col_2d

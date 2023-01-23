@@ -5,6 +5,8 @@ import torch.nn.functional as F
 from .operation import Operation
 from .operation import ALL_OPS
 
+import os
+assert os.environ.get('accutype') == "std"
 
 class Linear(Operation):
     """

@@ -5,6 +5,9 @@ from ..utils import im2col_2d
 from .operation import Operation
 from .operation import ALL_OPS, OP_RFIM_RELU, OP_RFIM_SOFTMAX
 
+import os
+assert os.environ.get('accutype') == "double"
+
 
 class Conv2d(Operation):
     """

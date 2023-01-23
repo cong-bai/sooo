@@ -6,6 +6,9 @@ from torch.nn import functional as F
 from torch.utils.data import BatchSampler, Subset, DataLoader
 from torch.cuda import nvtx
 
+import os
+assert os.environ.get('inverse') == "trsm"
+
 torch_function_class = F.cross_entropy.__class__
 
 _REQUIRES_GRAD_ATTR = '_original_requires_grad'

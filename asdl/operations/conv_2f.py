@@ -3,6 +3,7 @@ from torch import nn
 
 import os
 inverse = os.environ.get('inverse')
+assert os.environ.get('accutype') == "single"
 if inverse == "cholesky":
     from ..utils import im2col_2d
 elif inverse == "lu":

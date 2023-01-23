@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import os
+assert os.environ.get('precision') == "std"
 inverse = os.environ.get('inverse')
 if inverse == "cholesky":
     from .utils import has_reduction
